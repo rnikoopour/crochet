@@ -245,3 +245,55 @@ uboot_mkimage ( ) (
     eval "$MKIMAGE -A arm -O FreeBSD -T script -C none -d $MKIMAGE_INPUT $MKIMAGE_OUTPUT" > ${WORKDIR}/_.mkimage.log
 )
 
+# rpi_uboot_configure
+#
+# $1: Base directory of U-Boot sources
+# $2: Name of U-Boot configuration to use.
+rpi_uboot_configure ( ) {
+    echo "$2" > $1/_.uboot.to.be.configured
+    if [ -f $1/_.uboot.configured ]; then
+        return 0
+    fi
+
+    cd "$1"
+    echo "Configuring U-Boot at "`date`
+    echo "    (Logging to $1/_.uboot.configure.log)"
+    # U-Boot 2014.10 chokes when csh sets VENDOR; fixed in U-Boot 2015.01
+    # This can be removed when U-Boot 2014.10 is ancient history.
+    unset VENDOR
+    if  gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/armv6-freebsd -no-integrated-as -mllvm -arm-use-movt=0" $2 > $1/_.uboot.configure.log 2>&1; then
+        true # success
+    else
+        echo "  Failed to configure U-Boot."
+        echo "  Log in $1/_.uboot.configure.log"
+        exit 1
+    fi
+    echo "$2" > $1/_.uboot.configured
+    rm -f $1/_.uboot.built
+}
+
+# rpi_uboot_build
+#
+# $1: base dir of U-Boot sources
+rpi_uboot_build ( ) (
+    if [ -f $1/_.uboot.built ]; then
+        echo "Using U-Boot from previous build."
+        return 0
+    fi
+
+    cd "$1"
+    echo "Building U-Boot at "`date`
+    echo "    (Logging to $1/_.uboot.build.log)"
+    # U-Boot 2014.10 chokes when csh sets VENDOR
+    unset VENDOR
+    if gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/armv6-freebsd -no-integrated-as -mllvm -arm-use-movt=0" -j8 > $1/_.uboot.build.log 2>&1; then
+        true # success
+    else
+        echo "  Failed to build U-Boot."
+        echo "  Log in $1/_.uboot.build.log"
+        exit 1
+    fi
+
+    touch $1/_.uboot.built
+)
+
