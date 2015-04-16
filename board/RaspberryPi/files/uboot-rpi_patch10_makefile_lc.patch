@@ -1,13 +1,13 @@
 diff --git a/Makefile b/Makefile
-index 36a9a28..0f53d64 100644
+index 36a9a28..3e80928 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -666,7 +666,7 @@ else
+@@ -665,7 +665,7 @@ PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
+ else
  PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(c_flags) -print-libgcc-file-name`) -lgcc
  endif
- PLATFORM_LIBS += $(PLATFORM_LIBGCC)
--export PLATFORM_LIBS
-+export PLATFORM_LIBS -lc
- export PLATFORM_.LIBGCC
+-PLATFORM_LIBS += $(PLATFORM_LIBGCC)
++PLATFORM_LIBS += $(PLATFORM_LIBGCC) -lc
+ export PLATFORM_LIBS
+ export PLATFORM_LIBGCC
  
- # Special flags for CPP when processing the linker script.

@@ -10,4 +10,4 @@ index 6cf23d1..1d1f18d 100644
 +cmd_link_demo = $(LD) --gc-sections -static -Ttext $(LOAD_ADDR) -o $@ $(filter-out $(PHONY), $^) $(PLATFORM_LIBS)
  
  $(obj)/demo: $(OBJS) FORCE
-        $(call if_changed,link_demo)
+ 	$(call if_changed,link_demo)
